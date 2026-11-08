@@ -1,0 +1,1 @@
+KasCashSend feature is a mobile app for POS systems so locals in a situation where they are far from malls or don't have taxi fare they can simply with draw a cashsend voucher sent by there friends or family at near by local shops POS systems.
