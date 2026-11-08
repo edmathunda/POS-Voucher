@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kasi CashSend (prototype v2)</title>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef3f7;--panel:#fff;--ink:#14213d;--mute:#5b6b85;--line:#d6deea;--brand:#01639a;--brand-ink:#fff;--ok:#12805c;--warn:#b45f06;--soft:#e1f0f8;--red:#cf1f34;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d1420;--panel:#162033;--ink:#e8eefb;--mute:#93a3bf;--line:#2a3a56;--brand:#4db8e8;--brand-ink:#04202f;--ok:#47d1a0;--warn:#f0a850;--soft:#16344a;--red:#ff6b7a}}
+:root[data-theme="dark"]{--bg:#0d1420;--panel:#162033;--ink:#e8eefb;--mute:#93a3bf;--line:#2a3a56;--brand:#4db8e8;--brand-ink:#04202f;--ok:#47d1a0;--warn:#f0a850;--soft:#16344a;--red:#ff6b7a}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Figtree,system-ui,sans-serif;line-height:1.45}
+main{max-width:1000px;margin:0 auto;padding:20px 16px 40px}
+.pagelogo{background:#fff;border-radius:12px;padding:6px 14px;display:inline-block;margin-bottom:14px;border-bottom:3px solid #cf1f34}
+.pagelogo img{height:36px;display:block}
+h1{font-size:1.6rem;margin:0 0 4px;font-weight:800}
+.sub{color:var(--mute);margin:0 0 18px;max-width:66ch}
+.ctl{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:16px;font-size:.9rem}
+.grid{display:grid;grid-template-columns:350px 1fr;gap:24px;align-items:start}
+@media(max-width:840px){.grid{grid-template-columns:1fr}}
+.phone{background:var(--panel);border:1px solid var(--line);border-radius:28px;padding:18px;min-height:620px;display:flex;flex-direction:column;max-width:360px;width:100%;margin:0 auto}
+.phone.shop{--brand:#cf1f34;--brand-ink:#fff;--soft:#fbe7ea;border-color:#cf1f34}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) .phone.shop{--brand:#ff6b7a;--brand-ink:#2b0a10;--soft:#3a1a22}}
+:root[data-theme="dark"] .phone.shop{--brand:#ff6b7a;--brand-ink:#2b0a10;--soft:#3a1a22}
+.brandbar{background:#fff;border-radius:14px;padding:6px 12px;margin:-4px 0 14px;display:flex;align-items:center;justify-content:center;gap:10px;border-bottom:3px solid #cf1f34}
+.brandbar img{height:32px;display:block}
+.brandbar span{color:#14213d;font-weight:800;font-size:.9rem}
+h2{font-size:1.2rem;margin:0 0 10px}
+.card{border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px;background:var(--bg)}
+.row{display:flex;justify-content:space-between;gap:8px;padding:4px 0;font-size:.92rem}
+.row span:first-child{color:var(--mute)}
+.row.tot{border-top:1px solid var(--line);margin-top:4px;padding-top:8px;font-weight:800}
+label{display:block;font-size:.85rem;color:var(--mute);margin:10px 0 4px}
+input,select{width:100%;padding:11px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--ink);font:inherit}
+.ctl select{width:auto}
+input[aria-invalid="true"]{border-color:var(--red)}
+.btn{width:100%;padding:13px;border-radius:12px;border:0;background:var(--brand);color:var(--brand-ink);font:inherit;font-weight:700;cursor:pointer;margin-top:auto}
+.btn.alt{background:var(--soft);color:var(--brand);margin-top:8px}
+.link{background:none;border:0;color:var(--brand);font:inherit;font-weight:600;cursor:pointer;padding:6px 0;text-align:left}
+.spacer{flex:1;min-height:12px}
+.opt{display:block;width:100%;text-align:left;border:2px solid var(--line);border-radius:12px;padding:11px;background:var(--panel);color:var(--ink);font:inherit;cursor:pointer;margin-bottom:8px}
+.opt[aria-pressed="true"]{border-color:var(--brand);background:var(--soft)}
+.opt:disabled{opacity:.45;cursor:not-allowed}
+.opt small{display:block;color:var(--mute)}
+.tag{float:right;font-weight:700;font-size:.85rem}
+.amts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.amts .opt{margin:0;text-align:center;font-weight:800;font-size:1.05rem}
+.big{font-size:2rem;font-weight:800;margin:4px 0}
+.code{font-size:2.3rem;font-weight:800;letter-spacing:.18em;text-align:center;padding:14px 0}
+.note{font-size:.85rem;color:var(--mute)}
+.fe{color:var(--red);font-size:.82rem;margin-top:4px}
+.warn{color:var(--warn);font-weight:600}
+.err{border-color:var(--red);background:var(--panel)}
+.err b{color:var(--red)}
+.ok{color:var(--ok);font-weight:600}
+:focus-visible{outline:3px solid var(--brand);outline-offset:2px}
+.side{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px}
+.side h3{margin:0 0 4px;font-size:1.05rem}
+.chk{list-style:none;margin:10px 0 0;padding:0}
+.chk li{display:flex;gap:10px;padding:8px 0;border-top:1px solid var(--line);font-size:.92rem}
+.chk i{font-style:normal;width:22px;height:22px;border-radius:50%;flex:none;display:grid;place-items:center;font-size:.75rem;font-weight:700;border:2px solid var(--line);color:var(--mute)}
+.chk li.on i{background:var(--ok);border-color:var(--ok);color:var(--brand-ink)}
+.chk li.hold i{background:var(--warn);border-color:var(--warn);color:#fff}
+.chk li.fail i{background:var(--red);border-color:var(--red);color:#fff}
+.chk em{display:block;font-style:normal;color:var(--mute);font-size:.82rem}
+.rules{margin-top:18px;font-size:.88rem;color:var(--mute)}
+.rules table{width:100%;border-collapse:collapse;margin-top:6px}
+.rules td{padding:6px 4px;border-top:1px solid var(--line);vertical-align:top}
+.rules td:first-child{color:var(--ink);font-weight:600;width:36%}
+.rules td.n{text-align:right;color:var(--ink);width:auto;font-weight:400}
+.tg{background:var(--panel);border:2px solid var(--line);border-radius:10px;padding:8px 12px;font:inherit;font-weight:600;color:var(--ink);cursor:pointer}
+.tg[aria-pressed="true"]{border-color:var(--brand);background:var(--soft);color:var(--brand)}
+select{padding:8px}
+</style>
+</head>
+<body>
+<main>
+<div class="pagelogo"><img id="pl" alt="Capitec Bank"></div>
+<h1>Kasi CashSend</h1>
+<p class="sub">Concept prototype, version 2. The sender pays all fees and the recipient pays nothing. The tuckshop owner earns a commission, and cash is only settled once both sides confirm. Follow the money from sender to recipient to shop owner. Fees and limits are placeholders.</p>
+
+<div class="ctl">
+  <button class="tg" data-role="send" id="t_send">1. Sender</button>
+  <button class="tg" data-role="recv" id="t_recv">2. Recipient</button>
+  <button class="tg" data-role="owner" id="t_owner">3. Shop owner</button>
+  <label for="sc" style="margin:0 0 0 8px">Scenario</label>
+  <select id="sc"><option value="">Everything passes</option><option value="simswap">Recipient SIM recently swapped</option><option value="nocash">Shop has no cash in the till</option></select>
+  <button class="tg" id="reset">Restart</button>
+</div>
+
+<div class="grid">
+  <div class="phone" id="phone" aria-live="polite"></div>
+  <aside class="side">
+    <h3>Who pays what</h3>
+    <div class="note">Updates with the amount you pick.</div>
+    <div class="rules"><table id="fees"></table></div>
+    <h3 style="margin-top:20px">Behind the screen</h3>
+    <div class="note">Checks and controls, updated as you go.</div>
+    <ul class="chk" id="chk"></ul>
+    <div class="rules">
+      <b style="color:var(--ink)">Placeholder rules</b>
+      <table>
+        <tr><td>Fees</td><td>Sender pays the Send Cash fee plus a R6.00 tuckshop fee. Recipient pays R0.00.</td></tr>
+        <tr><td>Owner commission</td><td>R3.00 plus 1% of the cash. Paid on settlement. Held 24 hours if the customer did not confirm. Taken back if a dispute is upheld against the shop.</td></tr>
+        <tr><td>Voucher</td><td>R100 to R500, one full cash-out, locked to the recipient's number, valid 30 days.</td></tr>
+        <tr><td>Limits</td><td>R1,000 per recipient per day. Shop cash float capped at R3,000.</td></tr>
+        <tr><td>Cash code</td><td>6 digits, single use, 10 minutes, one shop only.</td></tr>
+        <tr><td>Two-sided confirm</td><td>Shop confirms handover, customer confirms receipt. If the customer is silent for 2 hours the cash settles and the commission waits 24 hours.</td></tr>
+        <tr><td>Refunds</td><td>Sender is refunded all fees if cancelled before a code is issued. Unclaimed vouchers return to the sender and the tuckshop fee is refunded.</td></tr>
+      </table>
+    </div>
+  </aside>
+</div>
+</main>
+
+<script>
+const LOGO="data:image/png;base64,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";
+const SHOPS=[{n:"Mama Zodwa's Tuckshop",d:'400 m',f:2000},{n:"Bra Sipho's Spaza",d:'1.2 km',f:300},{n:"Ntombi's Corner Shop",d:'2.8 km',f:1500}];
+const AMTS=[100,200,300,500],KFEE=6;
+const sendFee=a=>10*Math.ceil(a/1000);
+const comm=a=>Math.round((3+a*0.01)*100)/100;
+const $=id=>document.getElementById(id);
+const R=n=>'R'+Number(n).toLocaleString('en-ZA',{minimumFractionDigits:2,maximumFractionDigits:2});
+const rnd=(a,b)=>String(Math.floor(a+Math.random()*(b-a)));
+const sc=()=>$('sc').value;
+const init=()=>({role:'send',s:0,r:0,o:0,amt:300,num:'0821230147',shop:0,ref:null,pin:null,code:null,expired:false,sent:false,conf:null,handed:false,settled:false,disp:null,cancel:null,err:null,note:'',simblock:false});
+const st=init();
+const last4=()=>st.num.slice(-4);
+const sp=c=>c.slice(0,3)+' '+c.slice(3);
+const shop=()=>SHOPS[st.shop];
+
+function stageR(){
+  if(!st.sent)return 'nov';
+  if(st.cancel)return 'cancelled';
+  if(st.conf)return 'done';
+  if(st.handed)return 'confirm';
+  if(st.code)return 'code';
+  return st.r===1?'review':'pick';
+}
+function stageO(){
+  if(st.settled||st.disp)return 'done';
+  if(st.cancel&&st.o>=1)return 'declined';
+  if(st.handed)return 'wait';
+  return st.o===1&&st.code?'verify':'enter';
+}
+function feeCard(){
+  const a=st.amt;
+  return `<div class="card"><div class="row"><span>Cash for recipient</span><span>${R(a)}</span></div><div class="row"><span>Send Cash fee</span><span>${R(sendFee(a))}</span></div><div class="row"><span>Tuckshop fee</span><span>${R(KFEE)}</span></div><div class="row tot"><span>You pay</span><span>${R(a+sendFee(a)+KFEE)}</span></div><div class="row"><span>Recipient pays</span><span class="ok">${R(0)}</span></div></div>`;
+}
+function sendView(e){
+  if(st.s===0)return `<h2>Send cash to a tuckshop</h2>
+    ${st.note?`<div class="card"><b class="ok">${st.note}</b></div>`:''}
+    <label for="num">Recipient's cellphone number</label>
+    <input id="num" value="${st.num}" inputmode="numeric" maxlength="10" aria-invalid="${!!e.num}">${e.num?`<div class="fe">${e.num}</div>`:''}
+    <label>Amount</label><div class="amts">${AMTS.map(a=>`<button class="opt" data-amt="${a}" aria-pressed="${st.amt===a}">R${a}</button>`).join('')}</div>
+    ${feeCard()}<div class="spacer"></div><button class="btn" data-s="1">Continue</button>`;
+  if(st.s===1)return `<h2>Check and confirm</h2>
+    <div class="card"><div class="row"><span>To</span><span>••• ${last4()}</span></div></div>${feeCard()}
+    <p class="note">Only this number can collect it, once, at one shop. You can cancel until the recipient gets a cash code, and every fee comes back.</p>
+    <div class="spacer"></div><button class="btn" data-s="2">Confirm with fingerprint</button><button class="btn alt" data-s="0">Change details</button>`;
+  return `<div style="text-align:center;padding-top:6px"><div style="font-size:2.2rem">✅</div><h2 style="margin:0">Voucher sent</h2></div>
+    <div class="card" style="margin-top:12px"><div class="row"><span>Reference</span><span><b>${st.ref}</b></span></div><div class="row"><span>PIN</span><span><b>${st.pin}</b></span></div><div class="row"><span>Cash</span><span>${R(st.amt)}</span></div><div class="row"><span>Valid for</span><span>30 days</span></div></div>
+    ${e.sc?`<div class="card err" role="alert"><b>Cannot cancel now</b><div class="note">${e.sc}</div></div>`:''}
+    <p class="note">The recipient also gets an SMS. They pay nothing to collect.</p>
+    <div class="spacer"></div><button class="btn" data-role="recv">Switch to the recipient</button><button class="btn alt" data-sc="1">Cancel voucher</button>`;
+}
+function recvView(e){
+  const g=stageR();
+  if(g==='nov')return `<h2>No voucher yet</h2><p class="note">Send one from the sender view, or use a demo voucher.</p><div class="spacer"></div><button class="btn" data-demo="1">Use a demo voucher</button><button class="btn alt" data-role="send">Go to the sender</button>`;
+  if(g==='pick')return `<h2>Cash at a local shop</h2><div class="card"><div class="row"><span>From</span><span>Thabo M.</span></div><div class="row"><span>Cash</span><span><b>${R(st.amt)}</b></span></div><div class="row"><span>Locked to</span><span>••• ${last4()}</span></div></div>
+    <p class="note" style="margin:0 0 8px">Pick a shop near you</p>
+    ${SHOPS.map((s,i)=>`<button class="opt" data-shop="${i}" aria-pressed="${st.shop===i}" ${s.f<st.amt?'disabled':''}><span class="tag">${s.d}</span><b>${s.n}</b><small>${s.f<st.amt?'<span class="warn">Low on cash, cannot cover '+R(st.amt)+'</span>':'Can cover your cash'}</small></button>`).join('')}
+    <div class="spacer"></div><button class="btn" data-rc="1">Continue</button>`;
+  if(g==='review')return `<h2>Review</h2><div class="card"><div class="row"><span>Cash you get</span><span><b>${R(st.amt)}</b></span></div><div class="row"><span>You pay</span><span class="ok">${R(0)}</span></div><div class="row"><span>Shop</span><span>${shop().n}</span></div></div>
+    ${e.sim?`<div class="card err" role="alert"><b>Code blocked for your safety</b><div class="note">Your SIM changed in the last 24 hours. Your voucher is still valid. Try again tomorrow, or ask the sender to cancel.</div></div>`:''}
+    <p class="note">The code works only at this shop, only on your number, and only once. Count your cash before you confirm.</p>
+    <div class="spacer"></div><button class="btn" data-rc="2">Get cash code</button><button class="btn alt" data-rc="0">Back</button>`;
+  if(g==='code')return `<h2>Show this code at ${shop().n}</h2>${st.expired?`<div class="card err" role="alert"><b>Code expired</b><div class="note">Nothing was charged. Get a new code to try again.</div></div><div class="spacer"></div><button class="btn" data-rc="2">Get a new code</button>`:`<div class="card"><div class="code">${sp(st.code)}</div><div class="note" style="text-align:center">Valid 10 minutes. Works once.<br>The shop will ask to see your phone number ending ${last4()}.</div></div>
+    <p class="note">You get <b>${R(st.amt)}</b> in cash. You pay nothing.</p><button class="link" data-ff="1">Fast-forward 10 minutes</button><div class="spacer"></div><button class="btn" data-role="owner">Switch to the shop owner</button>`}`;
+  if(g==='confirm')return `<h2>Did you get your cash?</h2><div class="card"><div class="row"><span>Shop</span><span>${shop().n}</span></div><div class="row"><span>Amount</span><span><b>${R(st.amt)}</b></span></div></div><p class="note">Count it first. Only tap Yes if the full amount is in your hand.</p><div class="spacer"></div><button class="btn" data-cf="yes">Yes, I got ${R(st.amt)}</button><button class="btn alt" data-cf="no">No, there is a problem</button>`;
+  if(g==='cancelled'){const m={sim:'Your SIM changed recently, so cash-outs are paused for 24 hours.',digits:'The shop could not match your phone number, so the cash-out was stopped and flagged for review.',nocash:'The shop could not cover the cash. Nothing was charged and your voucher is still valid.'}[st.cancel];
+    return `<div style="text-align:center;padding-top:10px"><div style="font-size:2.2rem">⚠️</div><h2>Cash-out stopped</h2></div><div class="card"><div class="note">${m}</div></div><div class="spacer"></div><button class="btn" data-new="1">Pick another shop</button>`}
+  if(st.conf==='no')return `<div style="text-align:center;padding-top:10px"><div style="font-size:2.2rem">🛟</div><h2>Problem reported</h2></div><div class="card"><div class="row"><span>Case</span><span><b>${st.disp}</b></span></div><div class="note">The shop's payment is on hold. Capitec will call ${'••• '+last4()} within 1 business day.</div></div><div class="spacer"></div><button class="btn" id="reset2">Start again</button>`;
+  return `<div style="text-align:center;padding-top:10px"><div style="font-size:2.4rem">✅</div><div class="big">${R(st.amt)}</div><p style="margin:0"><b>Cash collected</b></p><p class="note">You paid nothing.${st.conf==='auto'?'<br>Settled automatically after 2 hours.':''}</p></div><div class="spacer"></div><button class="btn" id="reset2">Start again</button>`;
+}
+function ownerView(e){
+  const g=stageO();
+  if(g==='enter')return `<h2>Customer cash-out</h2><label for="oc">Customer's 6-digit code</label><input id="oc" inputmode="numeric" maxlength="7" placeholder="000 000" autocomplete="off" aria-invalid="${!!e.oc}">${e.oc?`<div class="fe">${e.oc}</div>`:''}${st.code?'<button class="link" data-fill="1">Fill in the customer\'s code</button>':'<p class="note">No code yet. Switch to the recipient and get a code first.</p>'}<div class="spacer"></div><button class="btn" data-o="1">Check code</button>`;
+  if(g==='verify'){const nc=sc()==='nocash';
+    return `<h2>Check, then pay out</h2><div class="card"><div class="row"><span>Customer</span><span>Lerato M.</span></div><div class="row"><span>Phone ends</span><span><b>${last4()}</b></span></div><div class="row"><span>Cash to hand over</span><span><b>${R(st.amt)}</b></span></div><div class="row"><span>Your commission</span><span>${R(comm(st.amt))}</span></div></div>
+    ${nc?`<div class="card err" role="alert"><b>Not enough cash</b><div class="note">Your till has R0.00. You cannot pay this out.</div></div>`:'<p class="note">Ask to see the customer\'s phone. The number must end in '+last4()+'. Count the cash in front of them.</p>'}
+    <div class="spacer"></div>${nc?'':'<button class="btn" data-oh="1">Number matches, cash handed over</button>'}<button class="btn alt" data-od="digits" ${nc?'hidden':''}>Number does not match</button><button class="btn alt" data-od="nocash">I cannot cover this</button>`}
+  if(g==='declined')return `<div style="text-align:center;padding-top:10px"><div style="font-size:2.2rem">🚫</div><h2>Cash-out cancelled</h2></div><div class="card"><div class="note">${st.cancel==='digits'?'The number did not match. The code is cancelled and the attempt is flagged for review.':'The code is cancelled and the customer is told to pick another shop. Nothing is charged to anyone.'}</div></div><div class="spacer"></div><button class="btn" data-role="recv">See the customer's screen</button>`;
+  if(g==='wait')return `<h2>Waiting for the customer</h2><div class="card"><div class="note">The customer must confirm they got ${R(st.amt)}. If they say nothing for 2 hours, the cash is credited to you and your commission follows after a 24-hour check.</div></div><button class="link" data-ff2="1">Fast-forward 2 hours</button><div class="spacer"></div><button class="btn" data-role="recv">Switch to the recipient</button>`;
+  const held=st.disp,auto=st.conf==='auto';
+  return `<div style="text-align:center;padding-top:10px"><div style="font-size:2.3rem">${held?'⏸️':'✅'}</div><div class="big">${held?'On hold':R(st.amt+(auto?0:comm(st.amt)))}</div><p style="margin:0"><b>${held?'Payment held for review':'Credited to your shop account'}</b></p></div>
+  <div class="card" style="margin-top:12px">${held?`<div class="note">The customer reported a problem. Case ${st.disp}. Your ${R(st.amt)} and commission are held until Capitec has checked the claim.</div>`:`<div class="row"><span>Cash replaced</span><span>${R(st.amt)}</span></div><div class="row"><span>Commission</span><span>${auto?R(comm(st.amt))+' in 24 hours':R(comm(st.amt))}</span></div>`}</div><div class="spacer"></div><button class="btn" data-role="recv">See the customer's screen</button>`;
+}
+function fees(){
+  const a=st.amt,sf=sendFee(a),c=comm(a),tot=sf+KFEE;
+  $('fees').innerHTML=`<tr><td>Sender pays</td><td class="n">${R(a+tot)}<br><span class="note">${R(a)} cash + ${R(sf)} Send Cash fee + ${R(KFEE)} tuckshop fee</span></td></tr>
+  <tr><td>Recipient pays</td><td class="n">${R(0)}</td></tr>
+  <tr><td>Shop owner earns</td><td class="n">${R(c)} commission<br><span class="note">${R(a)} cash given out is credited back in full</span></td></tr>
+  <tr><td>Capitec keeps</td><td class="n">${R(tot-c)}<br><span class="note">${R(tot)} fees minus ${R(c)} commission, before costs</span></td></tr>`;
+}
+function side(){
+  const sim=st.simblock,cp=!!st.code;
+  const L=[
+   ['Sender checked','Capitec client, FICA verified, within send limits. All fees shown and paid up front.',st.sent?'on':''],
+   ['Locked to recipient','Works only for the number the sender chose, for one full cash-out.',st.sent?'on':''],
+   ['Recipient SIM check',sim?'Blocked: SIM changed in the last 24 hours. Voucher stays valid.':'No SIM change in the last 24 hours.',sim?'fail':(st.sent&&(st.r>=1||cp)?'on':'')],
+   ['Shop can cover the cash','Shop float covers the amount. Others are hidden or greyed out.',st.sent&&(st.r>=1||cp)?'on':''],
+   ['One-time code',st.expired&&cp?'Expired. Nothing held or charged.':'6 digits, single use, 10 minutes, this shop only, this number only.',st.expired&&cp?'fail':(cp?'on':'')],
+   ['Shop verifies the customer',st.cancel==='digits'?'Blocked: number did not match. Code cancelled and flagged.':'Shop checks the code and the last 4 digits of the customer\'s phone.',st.cancel==='digits'?'fail':(st.o>=1&&cp||st.handed?'on':'')],
+   ['Shop pays out cash',st.cancel==='nocash'?'Shop could not cover it. Code cancelled, voucher stays valid, nothing charged.':'Shop hands over the cash and confirms in the agent app.',st.cancel==='nocash'?'fail':(st.handed?'on':'')],
+   ['Customer confirms receipt',st.conf==='no'?'Customer reported a problem. Settlement and commission held, case opened.':st.conf==='auto'?'No reply in 2 hours. Cash settled, commission held 24 hours.':'Customer confirms they got the full amount.',st.conf==='no'?'fail':st.conf==='auto'?'hold':st.conf==='yes'?'on':''],
+   ['Settlement',st.settled?'Shop credited the cash'+(st.conf==='yes'?' plus commission.':'. Commission follows after the check.'):st.disp?'On hold pending review.':'Completes after both sides confirm.',st.settled?'on':(st.disp?'hold':'')]
+  ];
+  $('chk').innerHTML=L.map(([t,d,c])=>`<li class="${c}"><i>${c==='on'?'✓':c==='fail'?'✕':c==='hold'?'!':''}</i><div><b>${t}</b><em>${d}</em></div></li>`).join('');
+}
+function render(){
+  const p=$('phone'),r=st.role;
+  p.className='phone'+(r==='owner'?' shop':'');
+  ['send','recv','owner'].forEach(k=>$('t_'+k).setAttribute('aria-pressed',r===k));
+  const e=st.err||{};
+  p.innerHTML=`<div class="brandbar"><img src="${LOGO}" alt="Capitec Bank"><span>${{send:'Send cash',recv:'Kasi CashSend',owner:'Shop agent'}[r]}</span></div>`+(r==='send'?sendView(e):r==='recv'?recvView(e):ownerView(e));
+  side();fees();
+}
+function newVoucher(){st.ref=rnd(1e9,9e9);st.pin=rnd(1000,9999);st.sent=true;st.s=2;st.note=''}
+document.addEventListener('click',ev=>{
+  const t=ev.target.closest('button');if(!t)return;const d=t.dataset;
+  if(t.id==='reset'||t.id==='reset2'){Object.assign(st,init());render();return}
+  if(d.role){st.role=d.role;st.err=null;render();return}
+  if(d.amt){st.amt=+d.amt;if(SHOPS[st.shop].f<st.amt)st.shop=SHOPS.findIndex(s=>s.f>=st.amt);render();return}
+  if(d.shop!==undefined){st.shop=+d.shop;render();return}
+  if(d.demo){newVoucher();render();return}
+  if(d.s){const n=+d.s;
+    if(st.s===0&&n===1){const v=$('num').value.trim();st.num=v;if(!/^0\d{9}$/.test(v)){st.err={num:'Enter a 10-digit cellphone number starting with 0.'};render();return}st.err=null}
+    if(n===2)newVoucher();else st.s=n;
+    st.err=null;render();return}
+  if(d.sc){if(st.code||st.handed)st.err={sc:'The recipient already has a cash code, so it is locked in.'};else{Object.assign(st,{sent:false,s:0,ref:null,pin:null,err:null,note:'Voucher cancelled. All fees refunded.'})}render();return}
+  if(d.rc!==undefined){const n=+d.rc;
+    if(n===2){if(sc()==='simswap'){st.err={sim:true};st.simblock=true;st.r=1;render();return}st.code=rnd(1e5,1e6);st.expired=false;}
+    else st.r=n;
+    st.err=null;render();return}
+  if(d.new){Object.assign(st,{cancel:null,code:null,r:0,o:0,expired:false,err:null,simblock:false});render();return}
+  if(d.ff){st.expired=true;render();return}
+  if(d.cf){if(d.cf==='yes'){st.conf='yes';st.settled=true}else{st.conf='no';st.disp='KDP-'+rnd(1e5,1e6)}render();return}
+  if(d.ff2){st.conf='auto';st.settled=true;render();return}
+  if(d.fill){$('oc').value=sp(st.code);return}
+  if(d.o){const v=($('oc').value||'').replace(/\D/g,'');
+    if(v.length!==6){st.err={oc:'Enter the 6-digit code.'};render();return}
+    if(!st.code||v!==st.code){st.err={oc:'Code not found. Ask the customer to check it.'};render();return}
+    if(st.expired){st.err={oc:'Code expired. Ask the customer for a new one.'};render();return}
+    st.err=null;st.o=1;render();return}
+  if(d.oh){st.handed=true;render();return}
+  if(d.od){st.cancel=d.od;st.code=null;render();return}
+});
+document.addEventListener('input',ev=>{
+  const i=ev.target;
+  if(i.id==='oc'){const v=i.value.replace(/\D/g,'').slice(0,6);i.value=v.length>3?v.slice(0,3)+' '+v.slice(3):v}
+  if(i.id==='num')i.value=i.value.replace(/\D/g,'').slice(0,10);
+});
+$('sc').addEventListener('change',()=>{Object.assign(st,{r:0,o:0,code:null,cancel:null,expired:false,handed:false,settled:false,conf:null,disp:null,err:null,simblock:false});render()});
+$('pl').src=LOGO;
+render();
+</script>
+</body>
+</html>
